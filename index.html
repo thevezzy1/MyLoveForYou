@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Love for You</title>
+  <meta name="description" content="Романтичный сайт в розовых тонах с красивой анимацией, пожеланиями и тёплыми функциями.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;500;700&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="hearts" aria-hidden="true"></div>
+
+  <main class="page">
+    <section class="hero glass">
+      <div class="hero__content">
+        <div class="hero__text">
+          <span class="badge">Ты — лучшее, что случилось со мной</span>
+          <h1>История нашей любви</h1>
+          <p>
+            Воспоминания с тобой — самые тёплые и бесценные. Жизнь рядом с тобой ощущается по‑настоящему счастливой.
+          </p>
+          <div class="hero__actions">
+            <button id="startAnimation" class="btn btn--primary">Запустить анимацию</button>
+            <button id="clearTerminal" class="btn btn--secondary">Очистить экран</button>
+          </div>
+        </div>
+
+        <div class="hero__stats">
+          <article class="stat-card">
+            <span class="stat-card__label">Просмотров анимации</span>
+            <strong id="launchCount">0</strong>
+          </article>
+          <article class="stat-card">
+            <span class="stat-card__label">Состояние анимации</span>
+            <strong id="animationStatus">Ожидание запуска</strong>
+          </article>
+          <article class="stat-card">
+            <span class="stat-card__label">Моя любовь к тебе</span>
+            <strong>Безумна и бесконечна</strong>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid">
+      <article class="panel glass panel--terminal">
+        <div class="panel__head">
+          <h2>Экран анимации</h2>
+          <span class="terminal-dot"></span>
+        </div>
+        <div id="terminal" class="terminal" aria-live="polite">
+          <div class="terminal__placeholder">Нажми «Запустить анимацию», чтобы увидеть мою любовь.</div>
+        </div>
+        <p id="finalMessage" class="final-message"></p>
+      </article>
+
+      <article class="panel glass">
+        <div class="panel__head">
+          <h2>Случайное послание</h2>
+        </div>
+        <p id="randomLine" class="soft-text">Нажми на кнопку, и я отправлю тебе послание.</p>
+        <button id="newPhrase" class="btn btn--primary btn--small">Показать послание</button>
+      </article>
+
+      <article class="panel glass">
+        <div class="panel__head">
+          <h2>Таймер нашей даты</h2>
+        </div>
+
+        <div class="field-label field-label--date">
+          <span class="date-pill">
+            <span>📅</span>
+            <span>28.07.2025</span>
+          </span>
+        </div>
+
+        <div id="dateResult" class="date-result"></div>
+      </article>
+
+      <article class="panel glass panel--full">
+        <div class="panel__head">
+          <h2>Стена пожеланий</h2>
+        </div>
+        <div class="wish-form">
+          <input id="wishInput" class="input" type="text" maxlength="120" placeholder="Напиши короткое тёплое пожелание...">
+          <button id="addWish" class="btn btn--primary btn--small">Добавить</button>
+        </div>
+        <div id="wishList" class="wish-list"></div>
+      </article>
+
+      <article class="panel glass panel--gallery panel--full">
+        <div class="panel__head panel__head--centered">
+          <h2>Наши фотографии</h2>
+        </div>
+        <div class="photo-viewer photo-viewer--bottom">
+          <div class="photo-viewer__frame">
+            <img id="lovePhoto" class="photo-viewer__image" src="img/photo_1_2026-04-10_20-10-18.jpg" alt="Наше фото">
+          </div>
+          <div class="photo-viewer__actions photo-viewer__actions--centered">
+            <button id="randomPhoto" class="btn btn--primary btn--small">Случайное фото</button>
+          </div>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <script>
+  (function () {
+      const startDate = new Date(2025, 6, 28, 0, 0, 0);
+      const resultElement = document.getElementById("dateResult");
+
+      function getYearsWord(value) {
+          const abs = Math.abs(value);
+          const lastDigit = abs % 10;
+          const lastTwoDigits = abs % 100;
+
+          if (abs === 0) return "Лет";
+          if (lastTwoDigits >= 11 && lastTwoDigits <= 14) return "Лет";
+          if (lastDigit === 1) return "Год";
+          if (lastDigit >= 2 && lastDigit <= 4) return "Года";
+          return "Лет";
+      }
+
+      function getFullYears(from, to) {
+          let years = to.getFullYear() - from.getFullYear();
+          const checkDate = new Date(from);
+          checkDate.setFullYear(from.getFullYear() + years);
+
+          if (checkDate > to) {
+              years--;
+          }
+
+          return Math.max(0, years);
+      }
+
+      function getTotalMonths(from, to) {
+          let months =
+              (to.getFullYear() - from.getFullYear()) * 12 +
+              (to.getMonth() - from.getMonth());
+
+          if (to.getDate() < from.getDate()) {
+              months--;
+          }
+
+          return Math.max(0, months);
+      }
+
+      function createStatRow(label, value, accent = false) {
+          const row = document.createElement("div");
+          row.className = accent ? 'date-stat date-stat--accent' : 'date-stat';
+
+          const left = document.createElement("span");
+          left.textContent = label;
+          left.className = 'date-stat__label';
+
+          const right = document.createElement("span");
+          right.textContent = value;
+          right.className = accent ? 'date-stat__value date-stat__value--accent' : 'date-stat__value';
+
+          row.appendChild(left);
+          row.appendChild(right);
+
+          return row;
+      }
+
+      function updateDisplay() {
+          const now = new Date();
+          let diffMs = now - startDate;
+
+          if (diffMs < 0) {
+              diffMs = 0;
+          }
+
+          const totalSeconds = Math.floor(diffMs / 1000) + 1;
+          const totalMinutes = Math.floor(diffMs / (1000 * 60)) + 1;
+          const totalHours = Math.floor(diffMs / (1000 * 60 * 60)) + 1;
+          const totalDays = Math.floor(diffMs / (1000 * 60 * 60 * 24)) + 1;
+
+          const totalMonths = getTotalMonths(startDate, now);
+          const totalYears = getFullYears(startDate, now);
+          const yearsLabel = getYearsWord(totalYears);
+
+          resultElement.innerHTML = "";
+          resultElement.appendChild(createStatRow(yearsLabel + ":", totalYears, true));
+          resultElement.appendChild(createStatRow("Месяцев:", totalMonths));
+          resultElement.appendChild(createStatRow("Дней:", totalDays));
+          resultElement.appendChild(createStatRow("Часов:", totalHours));
+          resultElement.appendChild(createStatRow("Минут:", totalMinutes));
+          resultElement.appendChild(createStatRow("Секунд:", totalSeconds));
+      }
+
+      updateDisplay();
+      setInterval(updateDisplay, 1000);
+  })();
+  </script>
+
+  <script src="js/script.js"></script>
+</body>
+</html>
